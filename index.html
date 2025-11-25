@@ -14,12 +14,12 @@ body {
     color:#fff;
     transition:0.3s;
 }
-body.dark { filter: brightness(0.8); }
+body.dark { filter: brightness(0.8); background-color:#121212; color:#fff;}
 h1 { text-align:center; text-shadow: 2px 2px 5px rgba(0,0,0,0.7); }
 
 .controls { text-align:center; margin-bottom:20px; }
 button { padding:5px 10px; margin:5px; border-radius:6px; border:1px solid #ccc; cursor:pointer; }
-.scan-btn { background:#4caf50; color:#fff; font-size:1.1em; font-weight:bold; padding:10px 20px; box-shadow: 2px 2px 5px rgba(0,0,0,0.5); border:none; border-radius:8px; }
+.scan-btn { background:#4caf50; color:#fff; font-size:1.1em; font-weight:bold; padding:10px 20px; border:none; border-radius:8px; }
 .scan-btn:hover { background:#45a049; }
 
 body.dark button { background-color:#333; color:#fff; border:1px solid #666; }
@@ -82,7 +82,7 @@ body.dark .cart h2 { color:#a5d6a7; }
 body.dark .cart-total { color:#81c784; }
 .pay-button { width:100%; padding:10px; margin-top:10px; font-weight:bold; }
 
-.history { margin-top:20px; background: rgba(232,245,233,0.8); padding:10px; border-radius:8px; font-size:0.85em; }
+.history { margin-top:20px; background: rgba(232,245,233,0.8); padding:10px; border-radius:8px; font-size:0.85em; max-height:200px; overflow-y:auto; }
 body.dark .history { background: rgba(44,44,44,0.8); color:#fff; }
 .history-session { border-top:2px dashed #2e7d32; margin:10px 0; padding-top:5px; }
 body.dark .history-session { border-top:2px dashed #81c784; }
@@ -115,6 +115,11 @@ body.dark #qrContainer { background: rgba(30,30,30,0.9); color:#fff; }
     50% { height:100%; opacity:0.7; }
     100% { top:0; height:100%; opacity:0; }
 }
+
+@media(max-width:600px){
+    .tooltip { width: 90%; left:5% !important; top:auto !important; bottom:10px; }
+    .container { flex-direction: column; }
+}
 </style>
 </head>
 <body>
@@ -134,12 +139,11 @@ body.dark #qrContainer { background: rgba(30,30,30,0.9); color:#fff; }
 <div class="cart-total" id="cartTotal">Total: $0.00</div>
 <button class="pay-button" onclick="showQRCode()">Pay Online</button>
 
-<!-- QR code và nút xác nhận -->
 <div id="qrContainer">
 <h3>Scan this QR code to pay</h3>
 <img id="qrImage" src="" alt="QR Code" style="width:200px; height:200px;">
 <br>
-<button onclick="confirmPayment()">Confirm Payment</button>
+<button onclick="hideQRCode()">Close QR</button>
 </div>
 
 <div class="history" id="historyContainer"><strong>Purchase History:</strong></div>
@@ -283,6 +287,9 @@ cart[idx].total = discountedPrice * cart[idx].quantity;
 cart.push({name:prod.name, quantity:quantity, total:discountedPrice*quantity, img:prod.img});
 }
 updateCartDisplay();
+// reset quantity sau khi scan
+qtyInput.value=1;
+updateZeroHighlight();
 },1000);
 }
 });
@@ -290,11 +297,11 @@ updateCartDisplay();
 
 function removeFromCart(index){cart.splice(index,1);updateCartDisplay();}
 
-// Hiển thị QR code ngay dưới Pay Online
 function showQRCode(){
 if(cart.length===0){alert("Cart is empty!"); return;}
 let totalAmount=cart.reduce((sum,item)=>sum+item.total,0);
-let paymentLink = `https://dat060507.github.io/Dat-project/payment.html?amount=${totalAmount.toFixed(2)}`;
+let paymentData = encodeURIComponent(JSON.stringify(cart));
+let paymentLink = `payment.html?amount=${totalAmount.toFixed(2)}&cart=${paymentData}`;
 document.getElementById('qrContainer').style.display='block';
 let qr = new QRious({
     element: document.getElementById('qrImage'),
@@ -303,41 +310,13 @@ let qr = new QRious({
 });
 }
 
-// Xác nhận thanh toán
-function confirmPayment(){
-let totalAmount=cart.reduce((sum,item)=>sum+item.total,0);
-alert(`Payment Successful! Total: $${totalAmount.toFixed(2)}`);
-const historyContainer=document.getElementById('historyContainer');
-const now = new Date();
-const date = now.toLocaleDateString();
-const time = now.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
+function hideQRCode(){document.getElementById('qrContainer').style.display='none';}
 
-let sessionDiv = document.createElement('div');
-sessionDiv.className = 'history-session';
-let sessionHeader = document.createElement('div');
-sessionHeader.innerHTML = `<strong>Payment: ${date} ${time}</strong>`;
-sessionDiv.appendChild(sessionHeader);
-
-cart.forEach(item=>{
-let div=document.createElement('div');
-div.className='history-item';
-div.innerText=`${item.name} x${item.quantity} - $${item.total.toFixed(2)}`;
-sessionDiv.appendChild(div);
-});
-
-historyContainer.prepend(sessionDiv);
-
-// Reset cart
-cart=[];
-updateCartDisplay();
-document.getElementById('qrContainer').style.display='none';
-}
-
-// Initialize
 renderProducts(productsData);
-</script>
 
+// Load history
+let savedHistory = localStorage.getItem('purchaseHistory');
+if(savedHistory) document.getElementById('historyContainer').innerHTML = savedHistory;
+</script>
 </body>
 </html>
-
-
