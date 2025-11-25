@@ -294,7 +294,7 @@ function removeFromCart(index){cart.splice(index,1);updateCartDisplay();}
 function showQRCode(){
 if(cart.length===0){alert("Cart is empty!"); return;}
 let totalAmount=cart.reduce((sum,item)=>sum+item.total,0);
-let paymentLink = `https://dat060507.github.io/ecocart/payment.html?amount=${totalAmount.toFixed(2)}`;
+let paymentLink = `https://dat060507.github.io/Dat-project/payment.html?amount=${totalAmount.toFixed(2)}`;
 document.getElementById('qrContainer').style.display='block';
 let qr = new QRious({
     element: document.getElementById('qrImage'),
@@ -339,4 +339,5 @@ renderProducts(productsData);
 
 </body>
 </html>
+
 
