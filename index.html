@@ -98,6 +98,18 @@ body.dark .history-session { border-top:2px dashed #81c784; }
     animation: scanAnim 1s forwards;
 }
 
+#qrContainer {
+    text-align:center;
+    margin-top:20px;
+    background: rgba(255,255,255,0.9);
+    padding:20px;
+    border-radius:12px;
+    color:#000;
+    display:none;
+}
+body.dark #qrContainer { background: rgba(30,30,30,0.9); color:#fff; }
+#qrContainer button { margin-top:10px; padding:5px 10px; font-weight:bold; cursor:pointer; }
+
 @keyframes scanAnim {
     0% { top:0; height:0; opacity:0.5; }
     50% { height:100%; opacity:0.7; }
@@ -120,13 +132,23 @@ body.dark .history-session { border-top:2px dashed #81c784; }
 <h2>Your Cart</h2>
 <div id="cartItems"></div>
 <div class="cart-total" id="cartTotal">Total: $0.00</div>
-<button class="pay-button" onclick="payOnline()">Pay Online</button>
+<button class="pay-button" onclick="showQRCode()">Pay Online</button>
+
+<!-- QR code và nút xác nhận -->
+<div id="qrContainer">
+<h3>Scan this QR code to pay</h3>
+<img id="qrImage" src="" alt="QR Code" style="width:200px; height:200px;">
+<br>
+<button onclick="confirmPayment()">Confirm Payment</button>
+</div>
+
 <div class="history" id="historyContainer"><strong>Purchase History:</strong></div>
 </div>
 </div>
 
 <div class="tooltip" id="tooltip"></div>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
 <script>
 let productsData = [
 {name:"Fresh Apple", price:2.00, category:"fruit", img:"https://upload.wikimedia.org/wikipedia/commons/1/15/Red_Apple.jpg", description:"Healthy, rich in vitamin C", discount:10},
@@ -234,7 +256,8 @@ function changeCartQuantity(index, delta){
 let item = cart[index];
 item.quantity += delta;
 if(item.quantity <1) item.quantity=1;
-const discountedPrice = parseFloat((item.total/item.quantity).toFixed(2));
+let prod = productsData.find(p => p.name === item.name);
+let discountedPrice = parseFloat((prod.price * (1 - prod.discount/100)).toFixed(2));
 item.total = discountedPrice * item.quantity;
 updateCartDisplay();
 }
@@ -255,7 +278,7 @@ const discountedPrice = parseFloat((prod.price * (1 - prod.discount/100)).toFixe
 const idx=cart.findIndex(item=>item.name===prod.name);
 if(idx>-1){
 cart[idx].quantity += quantity;
-cart[idx].total += discountedPrice * quantity;
+cart[idx].total = discountedPrice * cart[idx].quantity;
 } else {
 cart.push({name:prod.name, quantity:quantity, total:discountedPrice*quantity, img:prod.img});
 }
@@ -267,12 +290,24 @@ updateCartDisplay();
 
 function removeFromCart(index){cart.splice(index,1);updateCartDisplay();}
 
-function payOnline(){
+// Hiển thị QR code ngay dưới Pay Online
+function showQRCode(){
 if(cart.length===0){alert("Cart is empty!"); return;}
+let totalAmount=cart.reduce((sum,item)=>sum+item.total,0);
+let paymentLink = `https://example.com/pay?amount=${totalAmount.toFixed(2)}`;
+document.getElementById('qrContainer').style.display='block';
+let qr = new QRious({
+    element: document.getElementById('qrImage'),
+    value: paymentLink,
+    size: 200
+});
+}
+
+// Xác nhận thanh toán
+function confirmPayment(){
 let totalAmount=cart.reduce((sum,item)=>sum+item.total,0);
 alert(`Payment Successful! Total: $${totalAmount.toFixed(2)}`);
 const historyContainer=document.getElementById('historyContainer');
-
 const now = new Date();
 const date = now.toLocaleDateString();
 const time = now.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
@@ -291,8 +326,11 @@ sessionDiv.appendChild(div);
 });
 
 historyContainer.prepend(sessionDiv);
+
+// Reset cart
 cart=[];
 updateCartDisplay();
+document.getElementById('qrContainer').style.display='none';
 }
 
 // Initialize
@@ -301,4 +339,3 @@ renderProducts(productsData);
 
 </body>
 </html>
-
