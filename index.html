@@ -300,8 +300,7 @@ function removeFromCart(index){cart.splice(index,1);updateCartDisplay();}
 function showQRCode(){
 if(cart.length===0){alert("Cart is empty!"); return;}
 let totalAmount=cart.reduce((sum,item)=>sum+item.total,0);
-let paymentData = encodeURIComponent(JSON.stringify(cart));
-let paymentLink = `payment.html?amount=${totalAmount.toFixed(2)}&cart=${paymentData}`;
+let paymentLink = `payment.html?amount=${totalAmount.toFixed(2)}`;
 document.getElementById('qrContainer').style.display='block';
 let qr = new QRious({
     element: document.getElementById('qrImage'),
@@ -320,3 +319,4 @@ if(savedHistory) document.getElementById('historyContainer').innerHTML = savedHi
 </script>
 </body>
 </html>
+
