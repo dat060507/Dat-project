@@ -3,10 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>EcoCart Demo - User-Friendly (USD)</title>
+<title>EcoCart Demo</title>
 <style>
-body { font-family: Arial; padding:20px; background:#f3f3f3; color:#000; transition:0.3s; }
-body.dark { background:#121212; color:#fff; }
+body { font-family: Arial; padding:20px; background:#f3f3f3; color:#000; transition:0.3s;}
+body.dark { background:#121212; color:#fff;}
 h1{text-align:center;}
 .controls {text-align:center;margin-bottom:20px;}
 button{padding:5px 10px;margin:5px;border-radius:6px;cursor:pointer;}
@@ -88,31 +88,7 @@ function toggleDarkMode(){
     localStorage.setItem('darkMode',document.body.classList.contains('dark'));
 }
 
-function updateCartDisplay(){
-    const cartContainer=document.getElementById('cartItems');
-    cartContainer.innerHTML='';
-    let total=0;
-    cart.forEach((item,index)=>{
-        total+=item.total;
-        let div=document.createElement('div');
-        div.className='cart-item';
-        div.innerHTML=`
-            <img src="${item.img}">
-            <div style="flex:1;">
-                <div>${item.name}</div>
-                <div class="quantity-control">
-                    <input type="number" value="${item.quantity}" readonly style="width:40px;text-align:center;">
-                </div>
-                <div>$${item.total.toFixed(2)}</div>
-            </div>
-        `;
-        cartContainer.appendChild(div);
-    });
-    document.getElementById('cartTotal').innerText='Total: $'+total.toFixed(2);
-}
-
 function goToPayment(){
-    // Lấy số lượng từng sản phẩm
     cart=[];
     const cards=document.querySelectorAll('.product-card');
     cards.forEach((card,index)=>{
@@ -130,8 +106,6 @@ function goToPayment(){
 }
 
 renderProducts();
-</script>
-<script>
 if(localStorage.getItem('darkMode')==='true') document.body.classList.add('dark');
 </script>
 </body>
