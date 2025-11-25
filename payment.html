@@ -8,17 +8,17 @@
 body { font-family: Arial; background:#f3f3f3; padding:20px; transition:0.3s; }
 body.dark { background:#121212; color:#fff; }
 .container { background:white; padding:20px; border-radius:16px; width:350px; margin:auto; box-shadow:0 4px 10px rgba(0,0,0,0.2); }
-body.dark .container { background: #1c1c1c; }
+body.dark .container{background:#1c1c1c;}
 h2 { color:#2e7d32; }
-body.dark h2 { color:#81c784; }
+body.dark h2{color:#81c784;}
 .cart-item { display:flex; justify-content:space-between; margin-bottom:10px; align-items:center; }
 .cart-item img { width:50px; height:50px; object-fit:cover; border-radius:6px; }
-.amount { font-size:24px; font-weight:bold; color:#2e7d32; text-align:right; margin-top:10px; }
-body.dark .amount { color:#81c784; }
+.amount { font-size:24px; font-weight:bold; text-align:right; margin-top:10px; color:#2e7d32; }
+body.dark .amount{color:#81c784;}
 .button { width:100%; padding:12px; background:#4caf50; border:none; color:white; border-radius:8px; font-size:18px; margin-top:20px; cursor:pointer; }
-.button:hover { background:#388e3c; }
-.cancel { margin-top:10px; border:none; background:none; color:#333; cursor:pointer; }
-body.dark .cancel { color:#ccc; }
+.button:hover{background:#388e3c;}
+.cancel{margin-top:10px;border:none;background:none;color:#333;cursor:pointer;}
+body.dark .cancel{color:#ccc;}
 </style>
 </head>
 <body>
@@ -33,9 +33,10 @@ body.dark .cancel { color:#ccc; }
 <script>
 const params = new URLSearchParams(window.location.search);
 let amount = parseFloat(params.get("amount")||0).toFixed(2);
-let cart = JSON.parse(decodeURIComponent(params.get("cart")||"[]"));
-document.getElementById("amount").innerText = "$" + amount;
+document.getElementById("amount").innerText = "$"+amount;
 
+// Lấy cart từ localStorage
+let cart = JSON.parse(localStorage.getItem('currentCart')||"[]");
 const cartContainer = document.getElementById('cartContainer');
 cart.forEach(item=>{
     let div = document.createElement('div');
@@ -45,23 +46,19 @@ cart.forEach(item=>{
 });
 
 function payNow(){
-    // Lưu vào localStorage
+    // Lưu lịch sử
     let savedHistory = localStorage.getItem('purchaseHistory') || '<strong>Purchase History:</strong>';
     const now = new Date();
     const date = now.toLocaleDateString();
     const time = now.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
-
     let sessionDiv = `<div class="history-session"><strong>Payment: ${date} ${time}</strong>`;
-    cart.forEach(item=>{
-        sessionDiv += `<div class="history-item">${item.name} x${item.quantity} - $${item.total.toFixed(2)}</div>`;
-    });
-    sessionDiv += '</div>';
-
+    cart.forEach(item=>{sessionDiv+=`<div class="history-item">${item.name} x${item.quantity} - $${item.total.toFixed(2)}</div>`;});
+    sessionDiv+='</div>';
     savedHistory = sessionDiv + savedHistory;
     localStorage.setItem('purchaseHistory', savedHistory);
 
     alert(`Payment Successful! Total: $${amount}`);
-    window.location.href = "index.html";
+    window.location.href="index.html";
 }
 </script>
 </body>
