@@ -4,48 +4,69 @@
 <meta charset="UTF-8">
 <title>EcoCart Payment</title>
 <style>
-body { font-family: Arial, sans-serif; padding:20px; text-align:center; }
-.box {
+body {
+    font-family: Arial, sans-serif;
+    background:#f3f3f3;
     padding:20px;
-    border:1px solid #aaa;
-    border-radius:12px;
-    margin:auto;
-    width:300px;
+    text-align:center;
 }
-button {
-    padding:10px 20px;
-    border:none;
+.container {
+    background:white;
+    padding:20px;
+    border-radius:16px;
+    width:320px;
+    margin:auto;
+    box-shadow:0 4px 10px rgba(0,0,0,0.2);
+}
+.logo {
+    width:80px;
+    margin-bottom:10px;
+}
+.amount {
+    font-size:28px;
+    font-weight:bold;
+    color:#2e7d32;
+}
+.button {
+    width:100%;
+    padding:12px;
     background:#4caf50;
+    border:none;
     color:white;
     border-radius:8px;
-    font-size:16px;
+    font-size:18px;
+    margin-top:20px;
+    cursor:pointer;
+}
+.cancel {
+    margin-top:10px;
+    border:none;
+    background:none;
+    color:#333;
+    cursor:pointer;
 }
 </style>
 </head>
 <body>
 
-<h2>EcoCart Payment</h2>
-<div class="box">
-    <p>Total amount:</p>
-    <h1 id="amount"></h1>
+<div class="container">
+    <img src="https://upload.wikimedia.org/wikipedia/commons/a/a7/React-icon.svg" class="logo">
+    <h2>EcoCart Payment</h2>
 
-    <button onclick="finishPayment()">Pay Now</button>
+    <p>Amount to pay:</p>
+    <div class="amount" id="amount">$0.00</div>
+
+    <button class="button" onclick="payNow()">Pay Now</button>
+    <button class="cancel" onclick="history.back()">Cancel</button>
 </div>
 
 <script>
-// Lấy số tiền từ URL
 const params = new URLSearchParams(window.location.search);
 let amount = params.get("amount");
 document.getElementById("amount").innerText = "$" + amount;
 
-// Xử lý khi bấm thanh toán
-function finishPayment(){
-    alert("Payment successful!");
-
-    // Gửi tín hiệu về trang chính (nếu sau này bạn muốn auto update)
-    // hoặc đơn giản hiện popup.
-
-    // Sau đó chuyển về trang cảm ơn
+function payNow(){
+    alert("Payment Successful!");
     window.location.href = "success.html";
 }
 </script>
