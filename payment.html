@@ -2,74 +2,67 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>EcoCart Payment</title>
 <style>
-body {
-    font-family: Arial, sans-serif;
-    background:#f3f3f3;
-    padding:20px;
-    text-align:center;
-}
-.container {
-    background:white;
-    padding:20px;
-    border-radius:16px;
-    width:320px;
-    margin:auto;
-    box-shadow:0 4px 10px rgba(0,0,0,0.2);
-}
-.logo {
-    width:80px;
-    margin-bottom:10px;
-}
-.amount {
-    font-size:28px;
-    font-weight:bold;
-    color:#2e7d32;
-}
-.button {
-    width:100%;
-    padding:12px;
-    background:#4caf50;
-    border:none;
-    color:white;
-    border-radius:8px;
-    font-size:18px;
-    margin-top:20px;
-    cursor:pointer;
-}
-.cancel {
-    margin-top:10px;
-    border:none;
-    background:none;
-    color:#333;
-    cursor:pointer;
-}
+body { font-family: Arial; background:#f3f3f3; padding:20px; transition:0.3s; }
+body.dark { background:#121212; color:#fff; }
+.container { background:white; padding:20px; border-radius:16px; width:350px; margin:auto; box-shadow:0 4px 10px rgba(0,0,0,0.2); }
+body.dark .container { background: #1c1c1c; }
+h2 { color:#2e7d32; }
+body.dark h2 { color:#81c784; }
+.cart-item { display:flex; justify-content:space-between; margin-bottom:10px; align-items:center; }
+.cart-item img { width:50px; height:50px; object-fit:cover; border-radius:6px; }
+.amount { font-size:24px; font-weight:bold; color:#2e7d32; text-align:right; margin-top:10px; }
+body.dark .amount { color:#81c784; }
+.button { width:100%; padding:12px; background:#4caf50; border:none; color:white; border-radius:8px; font-size:18px; margin-top:20px; cursor:pointer; }
+.button:hover { background:#388e3c; }
+.cancel { margin-top:10px; border:none; background:none; color:#333; cursor:pointer; }
+body.dark .cancel { color:#ccc; }
 </style>
 </head>
 <body>
-
 <div class="container">
-    <img src="https://upload.wikimedia.org/wikipedia/commons/a/a7/React-icon.svg" class="logo">
-    <h2>EcoCart Payment</h2>
-
-    <p>Amount to pay:</p>
-    <div class="amount" id="amount">$0.00</div>
-
-    <button class="button" onclick="payNow()">Pay Now</button>
-    <button class="cancel" onclick="history.back()">Cancel</button>
+<h2>EcoCart Payment</h2>
+<div id="cartContainer"></div>
+<div class="amount" id="amount">$0.00</div>
+<button class="button" onclick="payNow()">Pay Now</button>
+<button class="cancel" onclick="window.history.back()">Cancel</button>
 </div>
 
 <script>
 const params = new URLSearchParams(window.location.search);
-let amount = params.get("amount");
+let amount = parseFloat(params.get("amount")||0).toFixed(2);
+let cart = JSON.parse(decodeURIComponent(params.get("cart")||"[]"));
 document.getElementById("amount").innerText = "$" + amount;
 
+const cartContainer = document.getElementById('cartContainer');
+cart.forEach(item=>{
+    let div = document.createElement('div');
+    div.className='cart-item';
+    div.innerHTML=`<img src="${item.img}"><div>${item.name} x${item.quantity}</div><div>$${item.total.toFixed(2)}</div>`;
+    cartContainer.appendChild(div);
+});
+
 function payNow(){
-    alert("Payment Successful!");
-    window.location.href = "success.html";
+    // Lưu vào localStorage
+    let savedHistory = localStorage.getItem('purchaseHistory') || '<strong>Purchase History:</strong>';
+    const now = new Date();
+    const date = now.toLocaleDateString();
+    const time = now.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
+
+    let sessionDiv = `<div class="history-session"><strong>Payment: ${date} ${time}</strong>`;
+    cart.forEach(item=>{
+        sessionDiv += `<div class="history-item">${item.name} x${item.quantity} - $${item.total.toFixed(2)}</div>`;
+    });
+    sessionDiv += '</div>';
+
+    savedHistory = sessionDiv + savedHistory;
+    localStorage.setItem('purchaseHistory', savedHistory);
+
+    alert(`Payment Successful! Total: $${amount}`);
+    window.location.href = "index.html";
 }
 </script>
-
 </body>
 </html>
