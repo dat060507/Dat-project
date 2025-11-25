@@ -117,11 +117,17 @@ function toggleDarkMode(){ document.body.classList.toggle('dark'); }
 
 function showQRCode(){
     if(cart.length===0){ alert("Cart is empty!"); return; }
-    localStorage.setItem('currentCart', JSON.stringify(cart)); // lưu tạm cart
-    let total = cart.reduce((s,i)=>s+i.total,0).toFixed(2);
-    let link = `payment.html?amount=${total}`;
+    // Lưu giỏ hàng tạm để Payment page lấy
+    localStorage.setItem('currentCart', JSON.stringify(cart));
+
+    let total = cart.reduce((sum,item)=>sum+item.total,0).toFixed(2);
+    let paymentLink = `payment.html?amount=${total}`;
     document.getElementById('qrContainer').style.display='block';
-    new QRious({element:document.getElementById('qrImage'), value:link, size:200});
+    new QRious({
+        element: document.getElementById('qrImage'),
+        value: paymentLink,
+        size: 200
+    });
 }
 function hideQRCode(){ document.getElementById('qrContainer').style.display='none'; }
 
