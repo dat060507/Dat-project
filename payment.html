@@ -19,6 +19,7 @@ body.dark .amount{color:#81c784;}
 .button:hover{background:#388e3c;}
 .cancel{margin-top:10px;border:none;background:none;color:#333;cursor:pointer;}
 body.dark .cancel{color:#ccc;}
+canvas{margin-top:10px;}
 </style>
 </head>
 <body>
@@ -26,16 +27,21 @@ body.dark .cancel{color:#ccc;}
 <h2>EcoCart Payment</h2>
 <div id="cartContainer"></div>
 <div class="amount" id="amount">$0.00</div>
+
+<h3>Scan QR to Pay</h3>
+<canvas id="qrCanvas"></canvas>
+
 <button class="button" onclick="payNow()">Pay Now</button>
 <button class="cancel" onclick="window.history.back()">Cancel</button>
 </div>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
 <script>
-const params=new URLSearchParams(window.location.search);
-let amount=parseFloat(params.get("amount")||0).toFixed(2);
+const params = new URLSearchParams(window.location.search);
+let amount = parseFloat(params.get("amount")||0).toFixed(2);
 document.getElementById("amount").innerText="$"+amount;
 
-let cart=JSON.parse(localStorage.getItem('currentCart')||"[]");
+let cart = JSON.parse(localStorage.getItem('currentCart')||"[]");
 const cartContainer=document.getElementById('cartContainer');
 cart.forEach(item=>{
     let div=document.createElement('div');
@@ -44,14 +50,23 @@ cart.forEach(item=>{
     cartContainer.appendChild(div);
 });
 
+// QR code lớn, dễ quét
+let paymentLink = encodeURIComponent(`https://yourdomain.com/simulate_payment.html?amount=${amount}`);
+let qr = new QRious({
+    element: document.getElementById('qrCanvas'),
+    value: paymentLink,
+    size: 300,
+    level: 'H'
+});
+
 function payNow(){
-    let savedHistory=JSON.parse(localStorage.getItem('purchaseHistory')||"[]");
-    const now=new Date();
-    const date=now.toLocaleDateString();
-    const time=now.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
-    let session={datetime:`${date} ${time}`,items:cart,total:amount};
+    let savedHistory = JSON.parse(localStorage.getItem('purchaseHistory')||"[]");
+    const now = new Date();
+    const date = now.toLocaleDateString();
+    const time = now.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
+    let session = {datetime:`${date} ${time}`, items:cart, total:amount};
     savedHistory.unshift(session);
-    localStorage.setItem('purchaseHistory',JSON.stringify(savedHistory));
+    localStorage.setItem('purchaseHistory', JSON.stringify(savedHistory));
     localStorage.removeItem('currentCart');
     window.location.href="success.html";
 }
@@ -60,3 +75,4 @@ if(localStorage.getItem('darkMode')==='true') document.body.classList.add('dark'
 </script>
 </body>
 </html>
+
